@@ -1,6 +1,7 @@
 import path from "path";
 
 export async function getStaticProps() {
+  console.log("(Re-)Generating...");
   const fs = require('fs').promises;
 
   const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
@@ -11,6 +12,8 @@ export async function getStaticProps() {
     props: {
       products: data.products
     },
+    // recreate at least 10 sec
+    revalidate: 10
   };
 }
 
