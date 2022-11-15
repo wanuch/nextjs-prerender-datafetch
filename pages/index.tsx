@@ -1,3 +1,4 @@
+import Link from "next/link";
 import path from "path";
 
 export async function getStaticProps(context: any) {
@@ -38,7 +39,7 @@ export default function Home(props: any) {
       <ul>
         {products.map((product: any) => (
           <li key={product.id}>
-            {product.title}
+            <Link href={`/${product.id}`}>{product.title}</Link>
           </li>
         ))}
       </ul>
