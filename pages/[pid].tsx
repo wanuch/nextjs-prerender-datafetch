@@ -4,13 +4,12 @@ import path from "path";
 export async function getStaticProps(context: any) {
     const { params } = context;
     const productId = params.pid;
-    const fs = require('fs').promises;
-
-    const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
-    const jsonData = await fs.readFile(filePath);
-    const data = JSON.parse(jsonData);
-
+    const data = await getData();
     const product = data.products.find((product: any) => product.id === productId)
+
+    if (!product) {
+        return { notFound: true };
+    }
 
     return {
         props: {
@@ -22,19 +21,31 @@ export async function getStaticProps(context: any) {
 }
 
 export async function getStaticPaths() {
+    const data = await getData();
+    const ids = data.products.map((product: any) => product.id);
+    const pathsWithParams = ids.map((id: any) => ({ params: { pid: id } }));
+
     return {
-        paths: [
-            { params: { pid: 'p1' } },
-            { params: { pid: 'p2' } },
-            { params: { pid: 'p3' } },
-        ],
-        fallback: false
+        paths: pathsWithParams,
+        fallback: true
     };
 }
 
-export default function ProductDetail(props: any) {
+async function getData() {
+    const fs = require('fs').promises;
+    const filePath = path.join(process.cwd(), 'data', 'dummy-backend.json');
+    const jsonData = await fs.readFile(filePath);
+    const data = JSON.parse(jsonData);
 
+    return data;
+}
+
+export default function ProductDetail(props: any) {
     const { loadedProduct } = props;
+
+    if (!loadedProduct) {
+        return (<p>Loading...</p>);
+    }
 
     return (
         <Fragment>
