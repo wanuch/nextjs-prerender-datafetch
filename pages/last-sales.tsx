@@ -1,8 +1,29 @@
 import { useEffect, useState } from "react";
 import useSWR from 'swr';
 
+// rendering the data from the client-side fetching
+export async function getStaticProps(context: any) {
+    const response = await fetch("https://react-getting-start-62baa-default-rtdb.asia-southeast1.firebasedatabase.app/sales.json")
+    const data = await response.json();
+    const transformedSales = [];
+
+    for (const key in data) {
+        transformedSales.push({
+            id: key,
+            username: data[key].username,
+            volume: data[key].volume
+        });
+    }
+
+    return {
+        props: {
+            sales: transformedSales
+        }
+    }
+}
+
 export default function LastSales(props: any) {
-    const [sales, setSales] = useState<any>();
+    const [sales, setSales] = useState<any>(props.sales);
 
     // ========================= With useSWR ============================ 
     const fetcher = (url: any) => fetch(url).then((r) => r.json());
@@ -24,7 +45,7 @@ export default function LastSales(props: any) {
     }, [data]);
 
     if (error) return <div>failed to load</div>
-    if (!data || !sales) return <div>Loading...</div>
+    if (!data && !sales) return <div>Loading...</div>
     // ========================= With useSWR ============================ 
 
     // ========================= Without useSWR =========================
